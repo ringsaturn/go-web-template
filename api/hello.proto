@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = ".;api";
+
+message HelloReq {
+  string Foo = 1;
+}
+
+enum HelloResponseCode {
+  BLANK = 0;
+  OK = 1;
+  UNMARSHAL_FAILED = 2;  // JSON 不合法
+}
+
+message HelloResp {
+  bool Status = 1;
+  HelloResponseCode Code = 2;
+  string Msg = 3;
+}
