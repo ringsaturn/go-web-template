@@ -20,6 +20,12 @@ func NewController(d *dao.Dao) (*Controller, error) {
 	return controllers, nil
 }
 
+func (controllers *Controller) Ping(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
 func (controllers *Controller) Hello(c *gin.Context) {
 	resp := &api.HelloResp{}
 	resp.Status = false

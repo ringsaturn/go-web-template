@@ -19,3 +19,7 @@ message HelloResp {
   HelloResponseCode Code = 2;
   string Msg = 3;
 }
+
+service Hello {
+  rpc Hello (HelloReq) returns (HelloResp) {}
+}

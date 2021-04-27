@@ -4,7 +4,7 @@ build:
 
 .PHONY:pb
 pb:
-	protoc -I=./api/ --go_out=./api/ ./api/*.proto
+	protoc -I=./api/ --go_out=./api/ --go-grpc_out=./api/ ./api/*.proto
 
 tidy:
 	rm go.sum

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,29 +12,49 @@ import (
 	"time"
 
 	"github.com/ringsaturn/go-web-template/pkg/config"
-	"github.com/ringsaturn/go-web-template/pkg/server"
+	pkggrpc "github.com/ringsaturn/go-web-template/pkg/server/grpc"
+	pkghttp "github.com/ringsaturn/go-web-template/pkg/server/http"
 	"golang.org/x/sync/errgroup"
 )
 
+var ErrServerNotReady = errors.New("server is nil")
+
 type Service struct {
-	conf   *config.Config
-	Server *server.Server
+	conf       *config.Config
+	HTTPServer *pkghttp.Server
+	GRPCServer *pkggrpc.Server
 }
 
-func NewService(conf *config.Config, server *server.Server) (*Service, error) {
+func NewService(conf *config.Config, httpServer *pkghttp.Server, gRPCServer *pkggrpc.Server) (*Service, error) {
 	return &Service{
-		conf:   conf,
-		Server: server,
+		conf:       conf,
+		HTTPServer: httpServer,
+		GRPCServer: gRPCServer,
 	}, nil
 }
 
 func (s *Service) StartHTTP(ctx context.Context) error {
+	if s.HTTPServer == nil {
+		return ErrServerNotReady
+	}
 	go func() {
 		<-ctx.Done()
 		log.Println("http ctx done")
-		_ = s.Server.HTTPServer.Shutdown(ctx)
+		_ = s.HTTPServer.Shutdown(ctx)
 	}()
-	return s.Server.HTTPServer.ListenAndServe()
+	return s.HTTPServer.Start(ctx)
+}
+
+func (s *Service) StartGRPC(ctx context.Context) error {
+	if s.GRPCServer == nil {
+		return ErrServerNotReady
+	}
+	go func() {
+		<-ctx.Done()
+		log.Println("http ctx done")
+		_ = s.GRPCServer.Shutdown(ctx)
+	}()
+	return s.GRPCServer.Start(ctx)
 }
 
 func (s *Service) StartPProfAPI(ctx context.Context) error {
@@ -56,6 +77,10 @@ func (s *Service) Start() error {
 
 	g.Go(func() error {
 		return s.StartHTTP(gctx)
+	})
+
+	g.Go(func() error {
+		return s.StartGRPC(gctx)
 	})
 
 	g.Go(func() error {

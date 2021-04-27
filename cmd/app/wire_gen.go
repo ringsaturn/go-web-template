@@ -9,13 +9,13 @@ import (
 	"github.com/ringsaturn/go-web-template/pkg/config"
 	"github.com/ringsaturn/go-web-template/pkg/controllers"
 	"github.com/ringsaturn/go-web-template/pkg/dao"
-	"github.com/ringsaturn/go-web-template/pkg/server"
+	"github.com/ringsaturn/go-web-template/pkg/server/grpc"
+	"github.com/ringsaturn/go-web-template/pkg/server/http"
 	"github.com/ringsaturn/go-web-template/pkg/service"
 )
 
 // Injectors from wire.go:
 
-// initService define
 func initService(conf *config.Config) (*service.Service, error) {
 	daoDao, err := dao.NewDao(conf)
 	if err != nil {
@@ -25,11 +25,15 @@ func initService(conf *config.Config) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	serverServer, err := server.NewServer(conf, daoDao, controller)
+	server, err := http.NewServer(conf, controller)
 	if err != nil {
 		return nil, err
 	}
-	serviceService, err := service.NewService(conf, serverServer)
+	grpcServer, err := grpc.NewServer()
+	if err != nil {
+		return nil, err
+	}
+	serviceService, err := service.NewService(conf, server, grpcServer)
 	if err != nil {
 		return nil, err
 	}
