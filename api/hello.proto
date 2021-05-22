@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api;
 
-option go_package = ".;api";
+option go_package = "./;api";
 
 message HelloReq {
   string Foo = 1;

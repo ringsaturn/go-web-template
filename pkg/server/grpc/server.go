@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/ringsaturn/go-web-template/api"
+	"github.com/ringsaturn/go-web-template/pkg/config"
 	"google.golang.org/grpc"
 )
 
@@ -13,7 +14,7 @@ type Server struct {
 	grpcServer *grpc.Server
 }
 
-func NewServer() (*Server, error) {
+func NewServer(conf *config.Config) (*Server, error) {
 	server := &Server{
 		grpcServer: grpc.NewServer(),
 	}
